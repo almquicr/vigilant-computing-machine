@@ -1,0 +1,23 @@
+note_to_dec={'C':0,'D':1,'E':2,'F':3,'G':4,'A':5,'B':6,'C1':7}
+
+note_to_bin={'C': '000', 'D': '001', 'E': '010', 'F': '011', 'G': '100', 'A': '101', 'B': '110', 'C1': '111'}
+
+note_sequence=input('Type note sequence sepreated with a comma "," : ')+','
+
+note_sequence=(note_sequence.upper()*3).split(',')#Multiplies the string 3 times to ensure it is divisble by 3. Changes string into list with all cappital letters.
+
+note_sequence=[x for x in note_sequence if x !=''] #Removes all occurences of '' in the list.
+
+note_sequence=[note_sequence[x:x+3] for x in range(0, len(note_sequence), 3)] #Divides long list into 3 note sublists.
+
+output=[]
+
+for triad in note_sequence:     ## This will iterate through each 3 note list
+    temp=''
+    for note in triad:              #This will iterate through each note of the 3 note lists.
+        temp+= note_to_bin[note]         #This will creat a binary string of what each note represents
+    temp=temp[::-1]                 #This will reverse the binary string
+
+   output.append(int(temp,2))  #This convert the reversed binary to a decimal number and append it to the output
+
+print (output) #Output returns a list of decimal numbers
