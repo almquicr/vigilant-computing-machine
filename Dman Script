@@ -1,10 +1,40 @@
+print('This script reads a single line file of comma separated notes.')
+print('This script assumes Bb will be input as B and F# will be input as F.')
+print('Extra lines at the end of the file will result in the last character being dropped.')
+
 note_to_dec={'C':0,'D':1,'E':2,'F':3,'G':4,'A':5,'B':6,'C1':7}
 
 note_to_bin={'C': '000', 'D': '001', 'E': '010', 'F': '011', 'G': '100', 'A': '101', 'B': '110', 'C1': '111'}
 
-note_sequence=input('Type note sequence sepreated with a comma "," : ')+','
+possible_notes={'GCC':3,'BCC':3,'DCC':4,'ACC':5,'FCC':3,'C1CC':7,'CGC':8,'GGC':4,'EGC':3,'DGC':5,'C1GC':3,'CEC':4,'EEC':7,'AEC':3,
+                'FEC':5,'CBC':9,'GBC':4,'DBC':3,'EDC':7,'BDC':5,'DDC':3,'CAC':8,'AAC':3,'FAC':9,'GFC':4,'BFC':5,'C1FC':3,'CCG':4,
+                'GCG':8,'ECG':3,'FCG':5,'BGG':9,'FGG':3,'GEG':4,'BBG':3,'DBG':5,'CDG':8,'DDG':4,'GAG':3,'C1AG':9,'CFG':7,'AFG':5,
+                'CC1G':3,'GC1G':4,'ACE':8,'CGE':3,'CEE':4,'GEE':5,'DEE':7,'GBE':3,'EBE':9,'GAE':4,'BAE':3,'CFE':5,'AC1E':7,'FC1E':3,
+                'DCB':4,'DGB':9,'EEB':3,'GDB':4,'C1DB':3,'BAB':7,'C1FB':5,'AC1B':3,'CCD':4,'ACD':9,'DED':3,'CBD':8,'FBD':7,'C1BD':5,
+                'GDD':4,'DAD':3,'DCA':4,'ACA':3,'EGA':5,'AEA':8,'FEA':7,'C1BA':3,'GAA':4,'CC1A':5,'EC1A':3,'DGF':9,'CEF':4,'BEF':7,
+                'FEF':3,'CBF':8,'GAF':5,'BFF':3,'GC1F':4,'GEC1':3,'AEC1':7,'EBC1':9,'ABC1':5,'GDC1':8,'DDC1':4,'CFC1':3}
 
-note_sequence=(note_sequence.upper()*3).split(',')#Multiplies the string 3 times to ensure it is divisble by 3. Changes string into list with all cappital letters.
+whattoget=input('What is your input type.  Enter file or string - ') #Is the user entering a file or text string
+whattoget=whattoget.lower() #ensure lower case
+
+if whattoget=='string': #check for string
+    note_sequence=input('Type note sequence sepreated with a comma "," : ')+',' #get input
+    outputfilename='Score_output.txt'   #set output file name
+elif whattoget=='file': #check for file
+    inputfilename = input('Enter a file name: ') #get the input filename
+    with open(inputfilename,"r") as inputfile:  #read the file
+        note_sequence = inputfile.read()
+    inputfile.closed
+    inputfilename=inputfilename.partition('.')  #partition the filename for further use
+    outputfilename=inputfilename[0]+"_output.txt"   #create teh output file name based on the input filename
+else:
+    print("I'm sorry I don't understand you")   #Always be polite
+    quit()  #self explanatory
+
+note_sequence=note_sequence.rstrip()    #Removes any trailing spaces or newlines
+
+#note_sequence=(note_sequence.upper()*3).split(',')#Multiplies the string 3 times to ensure it is divisble by 3. Changes string into list with all capital letters.
+note_sequence=(note_sequence.upper()).split(',') #removed the *3
 
 note_sequence=[x for x in note_sequence if x !=''] #Removes all occurences of '' in the list.
 
@@ -12,12 +42,23 @@ note_sequence=[note_sequence[x:x+3] for x in range(0, len(note_sequence), 3)] #D
 
 output=[]
 
-for triad in note_sequence:     ## This will iterate through each 3 note list
-    temp=''
-    for note in triad:              #This will iterate through each note of the 3 note lists.
-        temp+= note_to_bin[note]         #This will creat a binary string of what each note represents
-    temp=temp[::-1]                 #This will reverse the binary string
+for triad in note_sequence:     # This will iterate through each 3 note list
+    merged_triad=triad[0]+triad[1]+triad[2] #merges the triad elements into a single string
+    for sequence,poly in possible_notes.items():    #for each element in the possible_notes dictionary
+        if sequence == merged_triad:    #compare the input triad to the dictionary
+            output+=str(poly)   #if a match is found, add it to the output list
+    if merged_triad not in possible_notes:  #if not a valid note combination
+        output+=" " #add a space to the output list
+output=''.join(output)   #consolidate the list to a single string         
+    
+#    Dman's original code
+#    for note in triad:              #This will iterate through each note of the 3 note lists.
+#        temp+= note_to_bin[note]         #This will creat a binary string of what each note represents
+#    temp=temp[::-1]                 #This will reverse the binary string
+#    output.append(int(temp,2))  #This convert the reversed binary to a decimal number and append it to the output
 
-   output.append(int(temp,2))  #This convert the reversed binary to a decimal number and append it to the output
+print (output) #Output returns a list of polygonal numbers
 
-print (output) #Output returns a list of decimal numbers
+outputfile=open(outputfilename,"w") #write the output to a file
+outputfile.write(output)
+outputfile.close()
